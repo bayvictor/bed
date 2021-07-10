@@ -1,0 +1,94 @@
+From 20ee77c697e49abc8a5b7bcc5e190a3ad0cd16bd Mon Sep 17 00:00:00 2001
+From: Victor Huang <huangxd@yahoo.com>
+Date: Sat, 10 Jul 2021 14:39:00 -0700
+Subject: [PATCH] adding dual echo of hex/decimal in tui/tui_window.go
+
+---
+ tui/tui_window.go | 47 +++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 43 insertions(+), 4 deletions(-)
+
+diff --git a/tui/tui_window.go b/tui/tui_window.go
+index 0e93ff7..f1ec5b2 100644
+--- a/tui/tui_window.go
++++ b/tui/tui_window.go
+@@ -110,6 +110,8 @@ func (ui *tuiWindow) drawWindow(s *state.WindowState, active bool) {
+ 	ui.drawHeader(s, offsetStyleWidth)
+ 	ui.drawScrollBar(s, height, 4*width+7+offsetStyleWidth)
+ 	ui.drawFooter(s, offsetStyleWidth)
++	ui.drawWholelineFooter(s, offsetStyleWidth)
++	
+ }
+ 
+ const hex = "0123456789abcdef"
+@@ -177,13 +179,43 @@ func (ui *tuiWindow) drawFooter(s *state.WindowState, offsetStyleWidth int) {
+ 	ui.getTextDrawer().setTop(ui.region.height-1).setString(line, tcell.StyleDefault.Reverse(true))
+ }
+ 
++func (ui *tuiWindow) drawWholelineFooter(s *state.WindowState, offsetStyleWidth int) {
++/*	ui.getTextDrawer().setTop(ui.region.height-1).setString(s.bytes, tcell.StyleDefault.Reverse(true))
++
++	offsetStyle := "0x%0" + strconv.Itoa(offsetStyleWidth) + "x"
++	j := int(s.Cursor - s.Offset)
++	name := s.Name
++	if name == "" {
++		name = "[No name]"
++	}
++	var modified string
++	if s.Modified {
++		modified = " : +"
++	}
++	left := fmt.Sprintf(" %s%s%s : 0x%02x : '%s'",
++		prettyMode(s.Mode), name, modified, s.Bytes[j], prettyRune(s.Bytes[j]))
++	right := fmt.Sprintf("%d/%d : "+offsetStyle+"/"+offsetStyle+" : %.2f%% ",
++		s.Cursor, s.Length, s.Cursor, s.Length,
++		float64(s.Cursor*100)/float64(mathutil.MaxInt64(s.Length, 1)))
++	line := left + strings.Repeat(
++		" ", mathutil.MaxInt(2, ui.region.width-len(left)-len(right)),
++	) + right
++	ui.getTextDrawer().setTop(ui.region.height-1).setString(line, tcell.StyleDefault.Reverse(true))
++*/
++}
++
++
++
+ func prettyByte(b byte) byte {
++        return(b)
++        /*   // commented out by Victor, make Chinese visible ..
+ 	switch {
+ 	case 0x20 <= b && b < 0x7f:
+ 		return b
+ 	default:
+ 		return 0x2e
+ 	}
++	*/
+ }
+ 
+ func prettyRune(b byte) string {
+@@ -205,13 +237,20 @@ func prettyRune(b byte) string {
+ 	case 0x27:
+ 		return "\\'"
+ 	default:
++	       // return fmt.Sprintf("\\x%02x; u:\\u%04x; q:%q;  d:%d", b,b,b,b)
++	       
+ 		if b < 0x20 {
+-			return fmt.Sprintf("\\x%02x", b)
++			return fmt.Sprintf("\\x%02x   u:\\u%04x,q:%q,d:%d", b,b,b,b)
++			//return fmt.Sprintf("\\x%02x ", b )
+ 		} else if b < 0x7f {
+-			return string(rune(b))
++			//return string(rune(b))
++                        ss := string(rune(b))
++			return fmt.Sprintf("%s   u:\\u%04x,q:%q,d:%d", ss,b,b,b)
++
+ 		} else {
+-			return fmt.Sprintf("\\u%04x", b)
+-		}
++			//return fmt.Sprintf("\\u%04x", b)
++			return fmt.Sprintf("u:\\u%04x,q:%q,d:%d", b,b,b)
++		} 
+ 	}
+ }
+ 
+-- 
+2.30.2
+
